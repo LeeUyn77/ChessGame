@@ -45,13 +45,11 @@ wp6 = piece.piece("wp")
 wp7 = piece.piece("wp")
 wp8 = piece.piece("wp")
 # Draw the chess pieces
-static last_pieces = piece()
 def draw_pieces(board):
     for row in range(8):
         for col in range(8):
             piece = board[row][col]
             if piece != None:
-                last_pieces = piece
                 image = piece.get_image()
                 if piece.status == 1:
                     image = red_image
@@ -113,7 +111,6 @@ while running:
                 running = False
             else:
                 select_pieces(row,col)
-                last_pieces.status = piece.ALIVE
                 pos = 8*row+col
                 image = pygame.transform.scale(pygame.image.load("red.png"), (80, 80))
                 screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
