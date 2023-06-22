@@ -1,5 +1,8 @@
 #include<iostream>
 using namespace std;
+void hi(){
+    cout<<"Hi Son";
+}
 void Hi(){
     cout<<"Hello Loc";
 }
