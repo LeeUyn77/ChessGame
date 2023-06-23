@@ -75,6 +75,7 @@ def draw_pieces(board):
                     move = able_move(row,col,board)
                     for move_pos in move:
                         screen.blit(circle, pygame.Rect(move_pos[1] * SQUARE_SIZE, move_pos[0]  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                    screen.blit(red_image, pygame.Rect(col * SQUARE_SIZE, row  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
                 image = piece.get_image()
                 screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 def isblock(row,col,board,side):
@@ -98,6 +99,207 @@ def able_move(row,col,board):
                 move.append([row-1,col])
                 if row == 6 and not isblock(row-2,col,board,piece.side):
                     move.append([row-2,col])
+    elif piece.type=="wr" or piece.type=="br" :
+        cur_row = row
+        cur_col = col
+        check_time = 0
+        row_check = 0
+        col_check = 0
+        while check_time < 4:
+            if check_time == 0:
+                row_check =-1
+                col_check = 0
+            elif check_time == 1:
+                row_check = 1
+                col_check = 0
+            elif check_time == 2:
+                row_check = 0
+                col_check = -1
+            elif check_time == 3:
+                row_check = 0
+                col_check = 1
+            if not (0 <= cur_row + row_check <= 7 and 0 <= cur_col + col_check <= 7):          
+                check_time +=1
+                cur_row = row
+                cur_col = col     
+                continue
+            if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
+                move.append([cur_row+row_check,cur_col+col_check])
+                cur_row += row_check
+                cur_col += col_check            
+                if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
+                    check_time +=1
+                    cur_row = row
+                    cur_col = col   
+                    continue 
+            else: 
+                check_time +=1
+                cur_row = row
+                cur_col = col   
+                continue 
+    elif piece.type=="wb" or piece.type=="bb" :
+        cur_row = row
+        cur_col = col
+        check_time = 0
+        row_check = 0
+        col_check = 0
+        while check_time < 4:
+            if check_time == 0:
+                row_check =-1
+                col_check =-1
+            elif check_time == 1:
+                row_check = 1
+                col_check = 1
+            elif check_time == 2:
+                row_check = 1
+                col_check = -1
+            elif check_time == 3:
+                row_check = -1
+                col_check = 1
+            if not (0 <= cur_row + row_check <= 7 and 0 <= cur_col + col_check <= 7):          
+                check_time +=1
+                cur_row = row
+                cur_col = col     
+                continue
+            if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
+                move.append([cur_row+row_check,cur_col+col_check])
+                cur_row += row_check
+                cur_col += col_check            
+                if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
+                    check_time +=1
+                    cur_row = row
+                    cur_col = col   
+                    continue 
+            else: 
+                check_time +=1
+                cur_row = row
+                cur_col = col   
+                continue
+    elif piece.type=="wh" or piece.type=="bh" :
+        cur_row = row
+        cur_col = col
+        check_time = 0
+        row_check = 0
+        col_check = 0
+        while check_time < 8:
+            print(check_time)
+            if check_time == 0:
+                row_check = 1
+                col_check = 2
+            elif check_time == 1:
+                row_check = -1
+                col_check = 2
+            elif check_time == 2:
+                row_check = 1
+                col_check = -2
+            elif check_time == 3:
+                row_check = -1
+                col_check = -2
+            elif check_time == 4:
+                row_check = 2
+                col_check = 1
+            elif check_time == 5:
+                row_check = -2
+                col_check = 1
+            elif check_time == 6:
+                row_check = 2
+                col_check = -1
+            elif check_time == 7:
+                row_check = -2
+                col_check = -1           
+            if not (0 <= cur_row + row_check <= 7 and 0 <= cur_col + col_check <= 7):          
+                check_time +=1
+                continue
+            if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
+                move.append([cur_row+row_check,cur_col+col_check])    
+            check_time +=1 
+    elif piece.type=="wq" or piece.type=="bq" :
+        cur_row = row
+        cur_col = col
+        check_time = 0
+        row_check = 0
+        col_check = 0
+        while check_time < 8:
+            if check_time == 0:
+                row_check =-1
+                col_check =-1
+            elif check_time == 1:
+                row_check = 1
+                col_check = 1
+            elif check_time == 2:
+                row_check = 1
+                col_check = -1
+            elif check_time == 3:
+                row_check = -1
+                col_check = 1
+            elif check_time == 4:
+                row_check =-1
+                col_check = 0
+            elif check_time == 5:
+                row_check = 1
+                col_check = 0
+            elif check_time == 6:
+                row_check = 0
+                col_check = -1
+            elif check_time == 7:
+                row_check = 0
+                col_check = 1            
+            if not (0 <= cur_row + row_check <= 7 and 0 <= cur_col + col_check <= 7):          
+                check_time +=1
+                cur_row = row
+                cur_col = col     
+                continue
+            if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
+                move.append([cur_row+row_check,cur_col+col_check])
+                cur_row += row_check
+                cur_col += col_check            
+                if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
+                    check_time +=1
+                    cur_row = row
+                    cur_col = col   
+                    continue 
+            else: 
+                check_time +=1
+                cur_row = row
+                cur_col = col   
+                continue 
+    elif piece.type=="wk" or piece.type=="bk" :
+        cur_row = row
+        cur_col = col
+        check_time = 0
+        row_check = 0
+        col_check = 0
+        while check_time < 8:
+            if check_time == 0:
+                row_check = 1
+                col_check = 1
+            elif check_time == 1:
+                row_check = -1
+                col_check = 1
+            elif check_time == 2:
+                row_check = 1
+                col_check = -1
+            elif check_time == 3:
+                row_check = -1
+                col_check = -1
+            elif check_time == 4:
+                row_check = 1
+                col_check = 0
+            elif check_time == 5:
+                row_check = 0
+                col_check = 1
+            elif check_time == 6:
+                row_check = -1
+                col_check = 0
+            elif check_time == 7:
+                row_check = 0
+                col_check = -1       
+            if not (0 <= cur_row + row_check <= 7 and 0 <= cur_col + col_check <= 7):          
+                check_time +=1
+                continue
+            if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
+                move.append([cur_row+row_check,cur_col+col_check])    
+            check_time +=1 
     return move 
         
 def select_pieces(row,col):
