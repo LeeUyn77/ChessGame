@@ -9,6 +9,7 @@ WHITE = (255, 255, 204)
 BLACK = (0, 255, 128)
 RED = (255,0,0)
 red_image = pygame.transform.scale(pygame.image.load("red.png"), (80, 80))
+circle = pygame.transform.scale(pygame.image.load("circle.png"), (80, 80))
 # Set the dimensions of the chessboard
 WIDTH, HEIGHT = 640, 640
 SQUARE_SIZE = WIDTH // 8
@@ -63,6 +64,7 @@ wq = piece.piece("wq")
 wk = piece.piece("wk")
 # Draw the chess pieces
 last_piece = None
+move = []
 def draw_pieces(board):
     for row in range(8):
         for col in range(8):
@@ -70,17 +72,33 @@ def draw_pieces(board):
             if piece != None:
                 image = piece.get_image()
                 if piece.status == 1:
-                    
-                    screen.blit(red_image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                    move = able_move(row,col,board)
+                    for move_pos in move:
+                        screen.blit(circle, pygame.Rect(move_pos[1] * SQUARE_SIZE, move_pos[0]  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
                 image = piece.get_image()
                 screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+def isblock(row,col,board,side):
+    return board[row][col] != None and board[row][col].side == side
 def able_move(row,col,board):
-    if board[row][col].type=="bp":
-        image = pygame.transform.scale(pygame.image.load("red.png"), (80, 80))
-        screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-    elif board[row][col].type=="wp":
-        image = pygame.transform.scale(pygame.image.load("red.png"), (80, 80))
-        screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+    move = []
+    piece = board[row][col]
+    if piece.type=="bp":
+        if row == 7:
+            pass
+        else:
+            if not isblock(row+1,col,board,piece.side):
+                move.append([row+1,col])
+                if row == 1 and not isblock(row+2,col,board,piece.side):
+                    move.append([row+2,col])
+    elif piece.type=="wp":
+        if row == 0:
+            pass
+        else:
+            if not isblock(row-1,col,board,piece.side):
+                move.append([row-1,col])
+                if row == 6 and not isblock(row-2,col,board,piece.side):
+                    move.append([row-2,col])
+    return move 
         
 def select_pieces(row,col):
     pos = 8*row+col
@@ -129,8 +147,9 @@ while running:
             else:
                 if last_piece != None:
                     last_piece.status = piece.ALIVE
-                select_pieces(row,col)
-                last_piece = board[row][col]
+                if board[row][col] != None:
+                    select_pieces(row,col)
+                    last_piece = board[row][col]
             update()
     mouse = pygame.mouse.get_pos()
     pygame.display.flip()
