@@ -3,7 +3,7 @@ import piece
 import pygame
 # Initialize Pygame
 pygame.init()
-
+pygame.font.init()
 # Define colors
 WHITE = (255, 255, 204)
 BLACK = (0, 255, 128)
@@ -63,42 +63,53 @@ wb2 = piece.piece("wb")
 wq = piece.piece("wq")
 wk = piece.piece("wk")
 # Draw the chess pieces
-last_piece = None
 move = []
+selected_row = -1
+selected_col = -1
+turn = "white"
+endgame = False
 def draw_pieces(board):
+    screen.blit(red_image, pygame.Rect(selected_col * SQUARE_SIZE, selected_row  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
     for row in range(8):
         for col in range(8):
             piece = board[row][col]
+            if row == selected_row and col ==selected_col and selected_row !=-1 and selected_col !=-1:
+                for move_pos in move:
+                    screen.blit(circle, pygame.Rect(move_pos[1] * SQUARE_SIZE, move_pos[0]  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))                
             if piece != None:
-                image = piece.get_image()
-                if piece.status == 1:
-                    move = able_move(row,col,board)
-                    for move_pos in move:
-                        screen.blit(circle, pygame.Rect(move_pos[1] * SQUARE_SIZE, move_pos[0]  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-                    screen.blit(red_image, pygame.Rect(col * SQUARE_SIZE, row  * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
                 image = piece.get_image()
                 screen.blit(image, pygame.Rect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 def isblock(row,col,board,side):
     return board[row][col] != None and board[row][col].side == side
+def isEnermy(row,col,board,side):
+    return board[row][col] != None and board[row][col].side != side
 def able_move(row,col,board):
-    move = []
+    Move = []
     piece = board[row][col]
     if piece.type=="bp":
         if row == 7:
             pass
         else:
-            if not isblock(row+1,col,board,piece.side):
-                move.append([row+1,col])
+            if not isblock(row+1,col,board,piece.side) and not isEnermy(row+1,col,board,piece.side): 
+                Move.append([row+1,col])
                 if row == 1 and not isblock(row+2,col,board,piece.side):
-                    move.append([row+2,col])
+                    Move.append([row+2,col])
+            if not isblock(row+1,col-1,board,piece.side) and isEnermy(row+1,col-1,board,piece.side):
+                Move.append([row+1,col-1])
+            if not isblock(row+1,col+1,board,piece.side) and isEnermy(row+1,col+1,board,piece.side):
+                Move.append([row+1,col+1])                
     elif piece.type=="wp":
         if row == 0:
             pass
         else:
-            if not isblock(row-1,col,board,piece.side):
-                move.append([row-1,col])
+            if not isblock(row-1,col,board,piece.side) and not isEnermy(row-1,col,board,piece.side):
+                Move.append([row-1,col])
                 if row == 6 and not isblock(row-2,col,board,piece.side):
-                    move.append([row-2,col])
+                    Move.append([row-2,col])
+            if not isblock(row-1,col-1,board,piece.side) and isEnermy(row-1,col-1,board,piece.side):
+                Move.append([row-1,col-1])
+            if not isblock(row-1,col+1,board,piece.side) and isEnermy(row-1,col+1,board,piece.side):
+                Move.append([row-1,col+1])         
     elif piece.type=="wr" or piece.type=="br" :
         cur_row = row
         cur_col = col
@@ -124,7 +135,7 @@ def able_move(row,col,board):
                 cur_col = col     
                 continue
             if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
-                move.append([cur_row+row_check,cur_col+col_check])
+                Move.append([cur_row+row_check,cur_col+col_check])
                 cur_row += row_check
                 cur_col += col_check            
                 if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
@@ -162,7 +173,7 @@ def able_move(row,col,board):
                 cur_col = col     
                 continue
             if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
-                move.append([cur_row+row_check,cur_col+col_check])
+                Move.append([cur_row+row_check,cur_col+col_check])
                 cur_row += row_check
                 cur_col += col_check            
                 if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
@@ -182,7 +193,6 @@ def able_move(row,col,board):
         row_check = 0
         col_check = 0
         while check_time < 8:
-            print(check_time)
             if check_time == 0:
                 row_check = 1
                 col_check = 2
@@ -211,7 +221,7 @@ def able_move(row,col,board):
                 check_time +=1
                 continue
             if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
-                move.append([cur_row+row_check,cur_col+col_check])    
+                Move.append([cur_row+row_check,cur_col+col_check])    
             check_time +=1 
     elif piece.type=="wq" or piece.type=="bq" :
         cur_row = row
@@ -250,7 +260,7 @@ def able_move(row,col,board):
                 cur_col = col     
                 continue
             if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
-                move.append([cur_row+row_check,cur_col+col_check])
+                Move.append([cur_row+row_check,cur_col+col_check])
                 cur_row += row_check
                 cur_col += col_check            
                 if board[cur_row][cur_col] != None and board[cur_row][cur_col].side != piece.side:
@@ -298,19 +308,17 @@ def able_move(row,col,board):
                 check_time +=1
                 continue
             if not isblock(cur_row+row_check,cur_col+col_check,board,piece.side):
-                move.append([cur_row+row_check,cur_col+col_check])    
+                Move.append([cur_row+row_check,cur_col+col_check])    
             check_time +=1 
-    return move 
-        
-def select_pieces(row,col):
-    pos = 8*row+col
-    print("You have select piece")
-    print(pos)
-    board[row][col].status = 1
-        #able_move(row,col,board)
-
+    return Move
+def piece_move(row,col,rowmove,colmove,board):     
+    curpiece = board[row][col]
+    board[row][col] = None
+    board[rowmove][colmove] = curpiece    
+     
     
 # Define the initial chessboard
+
 board = [
     [br1, bh1, bb1, bq, bk, bb2, bh2, br2],
     [bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8],
@@ -321,16 +329,23 @@ board = [
     [wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8],
     [wr1, wh1, wb1, wk, wq, wb2, wh2, wr2],
 ]
-def update():
+def update(endgame):
     draw_board()
     draw_pieces(board)
     pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(580, 0, 60, 30)) 
     font = pygame.font.SysFont(None, 24) 
     text = font.render("Quit", True, WHITE) 
     screen.blit(text, (590, 10))
-    
+    if endgame == "white":
+        font = pygame.font.SysFont(None, 100) 
+        text = font.render("White Win", True, RED) 
+        screen.blit(text, (150, 250))
+    if endgame == "black":
+        font = pygame.font.SysFont(None, 100) 
+        text = font.render("Black Win", True, RED) 
+        screen.blit(text, (150, 250))
     # Update the display
-update()
+update(endgame)
 # Game loop
 clock = pygame.time.Clock()
 running = True
@@ -347,12 +362,33 @@ while running:
             if 580 <= mouse[0] <= 640 and 0 <= mouse[1] <= 30:
                 running = False
             else:
-                if last_piece != None:
-                    last_piece.status = piece.ALIVE
-                if board[row][col] != None:
-                    select_pieces(row,col)
-                    last_piece = board[row][col]
-            update()
+                moved = False
+                if move != []:
+                    for ablemove in move:
+                        if ablemove[1] == col and ablemove[0] == row:
+                            if board[row][col] !=None and board[row][col].type=="wk":
+                                endgame = "black"
+                            if board[row][col] !=None and board[row][col].type=="bk": 
+                                endgame = "white"
+                            piece_move(selected_row,selected_col,row,col,board)
+                            if turn == "white":
+                                turn = "black"
+                            else: turn = "white"
+                            move = []
+                            selected_row = -1
+                            selected_col = -1
+                            moved = True
+                            break
+                if moved == False:
+                    if board[row][col] == None:
+                        move = []
+                        selected_row = -1
+                        selected_col = -1                    
+                    elif board[row][col] != None and board[row][col].side == turn:
+                        move = able_move(row,col,board)
+                        selected_row = row
+                        selected_col = col
+            update(endgame)
     mouse = pygame.mouse.get_pos()
     pygame.display.flip()
     clock.tick(10)
